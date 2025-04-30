@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard - GoSampah</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-green-50 text-gray-800">
+  <nav class="bg-green-700 p-4 text-white">
+    <div class="container mx-auto flex justify-between items-center">
+      <h1 class="text-xl font-bold">GoSampah</h1>
+      <div id="nav-logout">
+        <button id="logoutBtn" class="bg-red-500 px-4 py-1 rounded hover:bg-red-600">Logout</button>
+      </div>
+    </div>
+  </nav>
+
+  <section class="py-12 px-4">
+    <h2 class="text-4xl font-bold mb-4 text-center">Dashboard Pengguna</h2>
+    <div id="totalPoin" class="text-center text-xl font-semibold mb-4"></div>
+    <div id="riwayatSampah" class="space-y-2 mb-6">
+      <!-- Riwayat akan ditampilkan di sini -->
+    </div>
+
+    <h3 class="text-2xl font-bold mb-4">Peringkat Pengguna Berdasarkan Poin</h3>
+    <div id="peringkat" class="space-y-2"></div>
+  </section>
+
+  <footer class="bg-green-700 text-white text-center py-4">
+    <p>&copy; 2025 GoSampah. Semua hak dilindungi.</p>
+  </footer>
+
+  <script>
+    // Logout
+    document.getElementById('logoutBtn').addEventListener('click', function() {
+      localStorage.removeItem('loggedIn');
+      alert('Anda telah logout.');
+      window.location.href = "index.html"; // Redirect ke halaman login
+    });
+
+    // Tampilkan riwayat sampah dan total poin
+    window.addEventListener('load', function() {
+      if (localStorage.getItem('loggedIn') === 'true') {
+        tampilkanRiwayat();
+        tampilkanTotalPoin();
+        tampilkanPeringkat();
+      } else {
+        window.location.href = "index.html"; // Redirect ke halaman login jika belum login
+      }
+    });
+
+    function tampilkanRiwayat() {
+      const riwayat = JSON.parse(localStorage.getItem('riwayatSampah')) || [];
+      const userEmail = localStorage.getItem('userEmail');
+      const container = document.getElementById('riwayatSampah');
+      container.innerHTML = '';
+      const user = riwayat.find(item => item.email === userEmail);
+      if (user) {
+        user.riwayat.reverse().forEach(item => {
+          container.innerHTML += `
+            <div class="p-4 bg-white rounded shadow">
+              <p><strong>${item.waktu}</strong></p>
+              <p>Jenis: ${item.jenis}, Berat: ${item.berat} kg, Poin: ${item.poin}</p>
+            </div>
+          `;
+        });
+      }
+    }
+
+    function tampilkanTotalPoin() {
+      const riwayat = JSON.parse(localStorage.getItem('riwayatSampah')) || [];
+      const userEmail = localStorage.getItem('userEmail');
+      const user = riwayat.find(item => item.email === userEmail);
+      if (user) {
+        document.getElementById('totalPoin').innerText = `Total Poin Akumulatif: ${user.poin} poin`;
+      }
+    }
+
+    function tampilkanPeringkat() {
+      const riwayat = JSON.parse(localStorage.getItem('riwayatSampah')) || [];
+      const peringkat = riwayat
+        .map(user => ({ nama: user.email, poin: user.poin }))
+        .sort((a, b) => b.poin - a.poin);
+      const container = document.getElementById('peringkat');
+      container.innerHTML = '';
+      peringkat.forEach((user, index) => {
+        container.innerHTML += `
+          <div class="p-4 bg-white rounded shadow">
+            <p><strong>Peringkat ${index + 1}:</strong> ${user.nama} - ${user.poin} poin</p>
+          </div>
+        `;
+      });
+    }
+  </script>
+</body>
+</html>
