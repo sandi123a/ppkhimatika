@@ -3,65 +3,95 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Riwayat Poin - GoSampah</title>
+  <title>Riwayat Point - GoSampah</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-green-50 text-gray-800">
-
-  <nav class="bg-green-700 p-4 text-white flex justify-between">
-    <h1 class="text-xl font-bold">Riwayat Poin</h1>
-    <button onclick="logout()" class="bg-red-500 px-3 py-1 rounded hover:bg-red-600">Logout</button>
+  <nav class="bg-green-700 p-4 text-white flex justify-between items-center">
+    <h1 class="text-xl font-bold">Riwayat Point</h1>
+    <button onclick="kembali()" class="bg-yellow-500 px-4 py-1 rounded hover:bg-yellow-600">Kembali</button>
   </nav>
 
-  <section class="max-w-2xl mx-auto py-8 px-4">
-    <h2 class="text-2xl font-semibold mb-4">Histori Transaksi</h2>
-    <div id="riwayat" class="space-y-4"></div>
-    <div class="mt-6 text-center">
-      <button onclick="window.location.href='penukaran-poin.html'" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Tukar Poin</button>
-    </div>
-    <div class="mt-4 text-center">
-      <button onclick="window.location.href='input-sampah.html'" class="text-sm text-gray-600 hover:underline">← Kembali</button>
-    </div>
-  </section>
+  <main class="p-6 max-w-3xl mx-auto space-y-6">
+    <section class="bg-white p-4 rounded shadow">
+      <h2 class="text-xl font-semibold mb-4">Daftar Riwayat Anda</h2>
+      <ul id="daftarRiwayat" class="space-y-2 text-sm"></ul>
+    </section>
 
-  <footer class="bg-green-700 text-white text-center py-4 mt-10">
-    <p>&copy; 2025 GoSampah. Semua hak dilindungi.</p>
-  </footer>
+    <section class="bg-white p-4 rounded shadow">
+      <h2 class="text-xl font-semibold mb-4">Tukar Point</h2>
+      <label class="block mb-1">Pilih Barang/Sembako</label>
+      <select id="barang" class="w-full border px-3 py-2 rounded">
+        <option value="">-- Pilih --</option>
+        <option value="Beras 5kg:100">Beras 5kg (100 point)</option>
+        <option value="Minyak 2L:80">Minyak 2L (80 point)</option>
+        <option value="Gula 2kg:60">Gula 2kg (60 point)</option>
+      </select>
+      <button onclick="konfirmasiTukar()" class="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Tukar Point</button>
+    </section>
+  </main>
 
   <script>
-    const email = localStorage.getItem("loggedInUser");
-    const riwayatContainer = document.getElementById("riwayat");
+    const loggedInUser = localStorage.getItem("loggedInUser");
+    const allUsers = JSON.parse(localStorage.getItem("users")) || [];
+    const user = allUsers.find(u => u.email === loggedInUser);
+    const riwayat = JSON.parse(localStorage.getItem("riwayatPoin") || "[]");
+    const list = document.getElementById("daftarRiwayat");
 
-    if (!email) {
-      alert("Silakan login terlebih dahulu.");
-      window.location.href = "index.html";
+    // Tampilkan riwayat milik user
+    riwayat.filter(r => r.email === loggedInUser).forEach((r, i) => {
+      const item = document.createElement("li");
+      item.className = "border-b py-2";
+      item.innerHTML = `
+        <strong>${r.status === "masuk" ? "➕" : "➖"} ${r.tambahan} point</strong> - ${r.jenis || r.barang}
+        <br><span class="text-gray-500">${r.tanggal}</span>
+      `;
+      list.appendChild(item);
+    });
+
+    function konfirmasiTukar() {
+      const select = document.getElementById("barang").value;
+      if (!select) return alert("Pilih barang terlebih dahulu!");
+
+      const [barang, pointStr] = select.split(":");
+      const jumlah = parseInt(pointStr);
+
+      if (user.point < jumlah) {
+        alert("Point Anda tidak cukup!");
+        return;
+      }
+
+      const konfirmasi = confirm(`Apakah Anda ingin menukar ${jumlah} point dengan ${barang}?`);
+      if (konfirmasi) {
+        user.point -= jumlah;
+        localStorage.setItem("users", JSON.stringify(allUsers));
+
+        const riwayatBaru = {
+          email: loggedInUser,
+          barang: barang,
+          tambahan: jumlah,
+          tanggal: new Date().toLocaleString(),
+          status: "keluar"
+        };
+
+        const semuaRiwayat = [...riwayat, riwayatBaru];
+        localStorage.setItem("riwayatPoin", JSON.stringify(semuaRiwayat));
+        localStorage.setItem("nota", JSON.stringify({
+          nama: user.name,
+          lokasi: user.lokasi || "Belum diisi",
+          barang: barang,
+          point: jumlah,
+          tanggal: new Date().toLocaleString()
+        }));
+
+        alert("Penukaran berhasil!");
+        window.location.href = "nota-penukaran.html";
+      }
     }
 
-    const riwayat = JSON.parse(localStorage.getItem(`${email}_riwayat`) || "[]");
-
-    if (riwayat.length === 0) {
-      riwayatContainer.innerHTML = "<p class='text-center text-gray-500'>Belum ada transaksi poin.</p>";
-    } else {
-      riwayat.reverse().forEach(item => {
-        const div = document.createElement("div");
-        div.className = "bg-white p-4 rounded shadow";
-        div.innerHTML = `
-          <p><strong>Status:</strong> ${item.status}</p>
-          <p><strong>Jenis Sampah / Barang:</strong> ${item.jenis}</p>
-          <p><strong>Berat / Jumlah:</strong> ${item.berat}</p>
-          <p><strong>Poin:</strong> ${item.point}</p>
-          <p><strong>Tanggal:</strong> ${item.date}</p>
-        `;
-        riwayatContainer.appendChild(div);
-      });
-    }
-
-    function logout() {
-      localStorage.removeItem("loggedIn");
-      localStorage.removeItem("loggedInUser");
-      window.location.href = "index.html";
+    function kembali() {
+      window.location.href = "input-sampah.html";
     }
   </script>
-
 </body>
 </html>
