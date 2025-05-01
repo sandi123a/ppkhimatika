@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin - Kelola Pengguna</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-900">
+
+  <nav class="bg-green-700 p-4 text-white">
+    <div class="container mx-auto flex justify-between items-center">
+      <h1 class="text-xl font-bold">Halaman Admin - GoSampah</h1>
+      <button onclick="logout()" class="bg-white text-green-700 px-4 py-1 rounded hover:bg-gray-200">Logout</button>
+    </div>
+  </nav>
+
+  <main class="p-6 max-w-4xl mx-auto">
+    <h2 class="text-2xl font-semibold mb-4">Daftar Pengguna</h2>
+    <div id="userList" class="space-y-4"></div>
+  </main>
+
+  <script>
+    function logout() {
+      localStorage.removeItem("loggedIn");
+      localStorage.removeItem("loggedInUser");
+      window.location.href = "index.html";
+    }
+
+    function loadUsers() {
+      const users = JSON.parse(localStorage.getItem("allUsers")) || [];
+      const userList = document.getElementById("userList");
+      userList.innerHTML = "";
+
+      users.forEach((user, index) => {
+        const userDiv = document.createElement("div");
+        userDiv.className = "bg-white p-4 rounded shadow flex justify-between items-center";
+
+        userDiv.innerHTML = `
+          <div>
+            <p><strong>Nama:</strong> ${user.fullName}</p>
+            <p><strong>Email:</strong> ${user.email}</p>
+            <p><strong>Poin:</strong> ${user.points || 0}</p>
+          </div>
+          <button onclick="hapusUser(${index})" class="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700">Hapus</button>
+        `;
+
+        userList.appendChild(userDiv);
+      });
+    }
+
+    function hapusUser(index) {
+      const users = JSON.parse(localStorage.getItem("allUsers")) || [];
+      if (confirm("Yakin ingin menghapus pengguna ini?")) {
+        users.splice(index, 1);
+        localStorage.setItem("allUsers", JSON.stringify(users));
+        loadUsers();
+      }
+    }
+
+    loadUsers();
+  </script>
+</body>
+</html>
