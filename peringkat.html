@@ -2,50 +2,68 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Peringkat Pengguna - GoSampah</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-green-50 text-gray-800">
-
+  <!-- Navigasi -->
   <nav class="bg-green-700 p-4 text-white">
     <div class="container mx-auto flex justify-between items-center">
-      <h1 class="text-xl font-bold">Peringkat Pengguna</h1>
-      <button onclick="kembali()" class="bg-white text-green-700 px-4 py-1 rounded hover:bg-gray-200">Kembali</button>
+      <h1 class="text-xl font-bold">GoSampah</h1>
+      <div class="space-x-4">
+        <a href="input-sampah.html" class="hover:underline">Setor Sampah</a>
+        <a href="riwayat-poin.html" class="hover:underline">Riwayat Poin</a>
+        <a href="peringkat.html" class="hover:underline">Peringkat Pengguna</a>
+      </div>
+      <div id="nav-logout">
+        <button id="logoutBtn" class="bg-red-500 px-4 py-1 rounded hover:bg-red-600">Logout</button>
+      </div>
     </div>
   </nav>
 
-  <main class="p-6 max-w-3xl mx-auto">
-    <h2 class="text-2xl font-bold mb-4 text-center">Peringkat Berdasarkan Poin</h2>
-    <div id="peringkatList" class="bg-white rounded shadow p-4 space-y-2"></div>
-  </main>
+  <!-- Tombol Kembali -->
+  <section class="py-4 px-4 text-center">
+    <button onclick="window.history.back()" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">Kembali</button>
+  </section>
+
+  <!-- Halaman Peringkat Pengguna -->
+  <section class="py-12 px-4">
+    <h2 class="text-4xl font-bold mb-4 text-center">Peringkat Pengguna</h2>
+    <div id="peringkatPengguna" class="space-y-4">
+      <!-- Peringkat pengguna akan ditampilkan di sini -->
+    </div>
+  </section>
+
+  <footer class="bg-green-700 text-white text-center py-4">
+    <p>&copy; 2025 GoSampah. Semua hak dilindungi.</p>
+  </footer>
 
   <script>
-    function kembali() {
-      window.history.back();
-    }
+    document.getElementById('logoutBtn').addEventListener('click', function() {
+      localStorage.removeItem('loggedIn');
+      alert('Anda telah logout.');
+      window.location.href = "index.html"; // Redirect ke halaman login
+    });
 
-    function tampilkanPeringkat() {
-      const semuaUser = JSON.parse(localStorage.getItem("allUsers")) || [];
+    // Menampilkan peringkat pengguna
+    window.addEventListener('load', function() {
+      tampilkanPeringkatPengguna();
+    });
 
-      semuaUser.sort((a, b) => (b.points || 0) - (a.points || 0));
-
-      const list = document.getElementById("peringkatList");
-      list.innerHTML = "";
-
-      semuaUser.forEach((user, index) => {
-        const div = document.createElement("div");
-        div.className = "flex justify-between p-2 border-b";
-        div.innerHTML = `
-          <span>#${index + 1} - ${user.fullName}</span>
-          <span>${user.points || 0} poin</span>
+    function tampilkanPeringkatPengguna() {
+      const riwayat = JSON.parse(localStorage.getItem('riwayatSampah')) || [];
+      const container = document.getElementById('peringkatPengguna');
+      riwayat.sort((a, b) => b.poin - a.poin); // Mengurutkan berdasarkan poin tertinggi
+      riwayat.forEach(item => {
+        container.innerHTML += `
+          <div class="p-4 bg-white rounded shadow">
+            <p><strong>${item.email}</strong> - Poin: ${item.poin}</p>
+          </div>
         `;
-        list.appendChild(div);
       });
     }
-
-    tampilkanPeringkat();
   </script>
-
 </body>
 </html>
+

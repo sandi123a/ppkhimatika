@@ -7,15 +7,22 @@
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-green-50 text-gray-800">
+  <!-- Navigasi -->
   <nav class="bg-green-700 p-4 text-white">
     <div class="container mx-auto flex justify-between items-center">
       <h1 class="text-xl font-bold">GoSampah</h1>
+      <div class="space-x-4">
+        <a href="input-sampah.html" class="hover:underline">Setor Sampah</a>
+        <a href="riwayat-poin.html" class="hover:underline">Riwayat Poin</a>
+        <a href="peringkat.html" class="hover:underline">Peringkat Pengguna</a>
+      </div>
       <div id="nav-logout">
         <button id="logoutBtn" class="bg-red-500 px-4 py-1 rounded hover:bg-red-600">Logout</button>
       </div>
     </div>
   </nav>
 
+  <!-- Halaman Setor Sampah -->
   <section class="py-12 px-4 text-center">
     <h2 class="text-4xl font-bold mb-4">Setor Sampah</h2>
     <form id="formSampah" class="max-w-md mx-auto space-y-4">
@@ -42,13 +49,14 @@
   </footer>
 
   <script>
-    // Logout
+    // Logout Button Function
     document.getElementById('logoutBtn').addEventListener('click', function() {
       localStorage.removeItem('loggedIn');
       alert('Anda telah logout.');
       window.location.href = "index.html"; // Redirect ke halaman login
     });
 
+    // Form submit event to calculate and store points
     document.getElementById('formSampah').addEventListener('submit', function(event) {
       event.preventDefault();
       const jenis = document.getElementById('jenisSampah').value;
@@ -64,6 +72,24 @@
 
       const totalPoin = berat * poinPerKg;
       document.getElementById('hasilPoin').innerText = `Total Poin: ${totalPoin} poin`;
+
+      // Menyimpan riwayat dan update total poin pengguna
+      let riwayat = JSON.parse(localStorage.getItem('riwayatSampah')) || [];
+      let userEmail = localStorage.getItem('userEmail');
+      let user = riwayat.find(item => item.email === userEmail);
+
+      if (user) {
+        user.poin += totalPoin;
+        user.riwayat.push({ waktu: new Date().toLocaleString(), jenis, berat, poin: totalPoin, tipe: 'masuk' });
+      } else {
+        riwayat.push({
+          email: userEmail,
+          poin: totalPoin,
+          riwayat: [{ waktu: new Date().toLocaleString(), jenis, berat, poin: totalPoin, tipe: 'masuk' }]
+        });
+      }
+
+      localStorage.setItem('riwayatSampah', JSON.stringify(riwayat));
     });
   </script>
 </body>
