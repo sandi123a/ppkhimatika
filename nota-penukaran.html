@@ -7,37 +7,39 @@
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 text-gray-800">
-  <div class="max-w-md mx-auto mt-10 bg-white p-6 rounded-lg shadow-lg">
-    <h1 class="text-center text-2xl font-bold mb-4 text-green-700">Nota Penukaran</h1>
-    <div id="notaDetail" class="text-sm space-y-2">
-      <!-- Konten nota akan ditampilkan via JavaScript -->
+
+  <section class="max-w-md mx-auto bg-white shadow p-6 mt-10 rounded">
+    <h2 class="text-xl font-bold mb-4 text-center">Nota Penukaran Poin</h2>
+    
+    <div id="notaContent" class="text-sm space-y-2">
+      <p><strong>Nama:</strong> <span id="nama"></span></p>
+      <p><strong>Lokasi:</strong> <span id="lokasi"></span></p>
+      <p><strong>Barang Ditukarkan:</strong> <span id="barang"></span></p>
+      <p><strong>Jumlah Poin:</strong> <span id="point"></span></p>
+      <p><strong>Waktu:</strong> <span id="waktu"></span></p>
     </div>
-    <div class="text-center mt-6">
-      <button onclick="kembali()" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Kembali ke Riwayat</button>
+
+    <div class="mt-6 text-center">
+      <button onclick="window.location.href='input-sampah.html'" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+        Kembali ke Beranda
+      </button>
     </div>
-  </div>
+  </section>
+
+  <footer class="text-center text-gray-600 text-xs mt-6">
+    <p>&copy; 2025 GoSampah</p>
+  </footer>
 
   <script>
-    const nota = JSON.parse(localStorage.getItem("nota"));
-    const div = document.getElementById("notaDetail");
+    const email = localStorage.getItem("loggedInUser");
+    const data = JSON.parse(localStorage.getItem(`${email}_lastTrade`) || "{}");
 
-    if (nota) {
-      div.innerHTML = `
-        <p><strong>Nama:</strong> ${nota.nama}</p>
-        <p><strong>Lokasi:</strong> ${nota.lokasi}</p>
-        <p><strong>Barang Ditukarkan:</strong> ${nota.barang}</p>
-        <p><strong>Jumlah Poin:</strong> ${nota.point}</p>
-        <p><strong>Tanggal:</strong> ${nota.tanggal}</p>
-        <hr class="my-3 border-gray-300">
-        <p class="text-center text-sm text-gray-600">Terima kasih telah berkontribusi dalam program GoSampah!</p>
-      `;
-    } else {
-      div.innerHTML = `<p class="text-red-600">Data nota tidak ditemukan.</p>`;
-    }
-
-    function kembali() {
-      window.location.href = "riwayat-poin.html";
-    }
+    document.getElementById("nama").textContent = data.nama || "-";
+    document.getElementById("lokasi").textContent = data.lokasi || "-";
+    document.getElementById("barang").textContent = data.barang || "-";
+    document.getElementById("point").textContent = data.point || "-";
+    document.getElementById("waktu").textContent = data.waktu || "-";
   </script>
+
 </body>
 </html>
